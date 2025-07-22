@@ -3,7 +3,8 @@ from typing import List
 from dotenv import load_dotenv
 
 from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
+# from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.chat_models import init_chat_model
 from langchain_core.messages import SystemMessage
 from langchain_core.messages import HumanMessage
@@ -19,7 +20,7 @@ class LLMRAGModule:
         """
         Initialize LLM-RAG module
         """
-        load_dotenv(dotenv_path="api.env")
+        load_dotenv(dotenv_path=".env")
 
         self.llm = init_chat_model(model_name, model_provider="openai", temperature=0.1, max_tokens=128)
 
