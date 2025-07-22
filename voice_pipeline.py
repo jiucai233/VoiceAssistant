@@ -25,8 +25,8 @@ import time
 
 class VoicePipeline:
     def __init__(self, 
-                 stt_model_size: str = "small",
-                 llm_model_name: str = "gpt-3.5-turbo",
+                 stt_model_size: str = "large",
+                 llm_model_name: str = "gpt-4o-mini",
                  tts_voice_model: str = "default",
                  language: str = "ko"):
         """
