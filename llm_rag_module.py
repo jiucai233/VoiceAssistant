@@ -3,7 +3,7 @@ from typing import List
 from dotenv import load_dotenv
 
 from langchain_community.vectorstores import FAISS
-from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.chat_models import init_chat_model
 from langchain_core.messages import SystemMessage
 from langchain_core.messages import HumanMessage
@@ -38,6 +38,7 @@ class LLMRAGModule:
 
         @tool(response_format="content_and_artifact")
         def retrieve(query: str):
+            """Retrieve relevant documents from vector store using similarity search."""
             retrieved_docs = self.vector_store.similarity_search(query, k=2)
             serialized = "\n\n".join(
                 (f"Source: {doc.metadata}\nContent: {doc.page_content}")
@@ -47,7 +48,7 @@ class LLMRAGModule:
 
         self.retrieve_tool = retrieve
         self.memory = MemorySaver()
-        self.graph = self._build_graph()
+        self.graph = self.build_graph()
 
     def build_graph(self):
         def query_or_respond(state: MessagesState):

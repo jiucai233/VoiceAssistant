@@ -34,6 +34,9 @@ class STTModule:
         Output:
         - Transcribed text content (string)
         """
+        if not os.path.exists(audio_file_path):
+            raise FileNotFoundError(f"Audio file not found: {audio_file_path}")
+
         try:
             result = self.model.transcribe(audio_file_path, language=language)
             return result["text"]

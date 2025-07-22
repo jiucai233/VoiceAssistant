@@ -19,8 +19,9 @@ from stt_module import STTModule
 from llm_rag_module import LLMRAGModule
 from tts_module import TTSModule
 import os
+from tqdm import tqdm
 from typing import Optional
-
+import time
 
 class VoicePipeline:
     def __init__(self, 
@@ -102,19 +103,21 @@ class VoicePipeline:
             result["response_text"] = response_text
             print(f"Response: {response_text}")
             
-            # Step 3: TTS - text to speech
-            print("3. Synthesizing speech...")
-            output_audio = self.tts.text_to_speech_file(response_text, output_audio_path)
-            if not output_audio:
-                print("Speech synthesis failed")
-                return result
+            # # Step 3: TTS - text to speech
+            # print("3. Synthesizing speech...")
+            # output_audio = self.tts.text_to_speech_file(response_text, output_audio_path)
+            # if not output_audio:
+            #     print("Speech synthesis failed")
+            #     return result
                 
-            result["output_audio"] = output_audio
-            result["success"] = True
-            print(f"Processing complete! Output audio: {output_audio}")
+            # result["output_audio"] = output_audio
+            # result["success"] = True
+            # print(f"Processing complete! Output audio: {output_audio}")
             
-            return result
-            
+            # return result
+            # ==========================
+            # still developing..
+            # ==========================
         except Exception as e:
             print(f"Voice pipeline processing error: {e}")
             return result
@@ -234,23 +237,27 @@ def demo():
         language="ko"
     )
     
-    print("\nAvailable features:")
-    print("1. Process audio file: pipeline.process_audio_file('input.wav')")
-    print("2. Live conversation: pipeline.process_live_conversation()")
-    print("3. Batch processing: pipeline.batch_process_audio_files(['file1.wav', 'file2.wav'])")
-    
     # Example: process audio file (if exists)
-    if os.path.exists("recorded.wav"):
-        print("\nDetected recorded.wav, starting processing...")
-        result = pipeline.process_audio_file("recorded.wav")
-        print(f"Result: {result}")
+    audio_dir = "./voice_data"
+    audio_files = [
+        os.path.join(audio_dir, f)
+        for f in os.listdir(audio_dir)
+        if f.endswith(".m4a")
+    ]
     
-    # Example: live conversation (requires microphone)
-    # print("\nStarting live conversation demo...")
-    # result = pipeline.process_live_conversation(record_duration=5)
-    # print(f"Live result: {result}")
+    print(f"Found {len(audio_files)} audio files.")
     
-    print("\nVoice pipeline demo complete!")
+    for audio_path in tqdm(audio_files, desc="Transcribing", unit="file"):
+        start = time.time()
+        filename = os.path.basename(audio_path)
+        print(f"\n🔊 Processing: {filename}")
+    
+        result = pipeline.process_audio_file(audio_path)
+    
+        elapsed = time.time() - start
+        print(f"✅ [{filename}] → {result}  🕒 {elapsed:.2f} sec")    
+        
+        print("\nVoice pipeline demo complete!")
 
 
 def main():
