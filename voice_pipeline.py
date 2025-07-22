@@ -233,12 +233,12 @@ def demo():
     
     # Initialize voice pipeline
     pipeline = VoicePipeline(
-        stt_model_size="small",
+        stt_model_size="large",
         language="ko"
     )
     
     # Example: process audio file (if exists)
-    audio_dir = "./voice_data"
+    audio_dir = ".\\voice_data"
     audio_files = [
         os.path.join(audio_dir, f)
         for f in os.listdir(audio_dir)
