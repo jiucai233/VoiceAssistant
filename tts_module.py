@@ -1,167 +1,107 @@
 """
-Text-to-Speech (TTS) Module
-
-Input: Text content (string)
-Output: Audio file path (string) or audio byte data (bytes)
+Text-to-Speech (TTS) Module using OpenAI API
 """
 
 from typing import Optional, Union
 import os
-
-
+import openai
+from pathlib import Path
+from dotenv import load_dotenv
 class TTSModule:
-    def __init__(self, voice_model: str = "default", language: str = "ko"):
+    def __init__(self, api_key: Optional[str] = None, voice_model: str = "tts-1", voice: str = "nova"):
         """
         Initialize the TTS module
 
         Args:
-        - voice_model: name of the voice model (string)
-        - language: speech language (string, e.g., "ko" Korean, "zh" Chinese, "en" English)
+        - api_key: OpenAI API key (if not using environment variable)
+        - voice_model: TTS model name ("tts-1", "tts-1-hd", etc.)
+        - voice: Voice name ("alloy", "nova", "shimmer", etc.)
         """
-        # TODO: Awaiting implementation
+        load_dotenv(dotenv_path=".env")
+        openai.api_key = api_key or os.getenv("OPENAI_API_KEY")
         self.voice_model = voice_model
-        self.language = language
-        
-    def text_to_speech_file(self, text: str, output_file: str = "output.wav", 
-                           voice_speed: float = 1.0) -> str:
+        self.voice = voice
+        self.language = "ko"  # Not directly used, for future compatibility
+
+    def text_to_speech_file(self, input_text: str, output_file: str = "output.mp3") -> str:
         """
         Convert text to a speech audio file
 
         Args:
-        - text: the text content to convert (string)
-        - output_file: path of the output audio file (string)
-        - voice_speed: speech speed (float, 1.0 = normal speed)
+        - input_text: text to convert
+        - output_file: path to save .mp3 audio
 
         Returns:
-        - generated audio file path (string)
+        - output file path
         """
         try:
-            # TODO: Implement text-to-speech and save to file
-            print(f"Converting text to speech: {text[:50]}...")
-            
-            # Placeholder return
+            response = openai.audio.speech.create(
+                model=self.voice_model,
+                voice=self.voice,
+                input=input_text,
+                response_format="mp3"
+            )
+
+            with open(output_file, "wb") as f:
+                f.write(response.content)
+
             return output_file
-            
         except Exception as e:
             print(f"TTS file generation error: {e}")
             return ""
-    
-    def text_to_speech_bytes(self, text: str, voice_speed: float = 1.0) -> bytes:
+
+    def text_to_speech_bytes(self, text: str) -> bytes:
         """
         Convert text to speech and return audio as byte data
 
         Args:
-        - text: the text content to convert (string)
-        - voice_speed: speech speed (float)
+        - text: text to convert
 
         Returns:
-        - audio byte data (bytes)
+        - audio byte content
         """
         try:
-            # TODO: Implement text-to-speech and return as bytes
-            print(f"Generating speech byte data: {text[:50]}...")
-            
-            # Placeholder empty bytes
-            return b""
-            
+            response = openai.audio.speech.create(
+                model=self.voice_model,
+                voice=self.voice,
+                input=text,
+                response_format="mp3"
+            )
+            return response.content
         except Exception as e:
             print(f"TTS byte generation error: {e}")
             return b""
-    
-    def text_to_speech_stream(self, text: str, voice_speed: float = 1.0) -> bool:
-        """
-        Stream the synthesized speech directly (e.g., play aloud)
 
-        Args:
-        - text: the text content to convert (string)
-        - voice_speed: speech speed (float)
-
-        Returns:
-        - success status of playback (bool: True/False)
-        """
-        try:
-            # TODO: Implement real-time speech playback
-            print(f"Playing speech: {text[:50]}...")
-            
-            return True
-            
-        except Exception as e:
-            print(f"TTS stream playback error: {e}")
-            return False
-    
     def batch_text_to_speech(self, text_list: list, output_dir: str = "./audio_output") -> dict:
         """
-        Batch text-to-speech conversion
-
-        Args:
-        - text_list: list of text strings (List[string])
-        - output_dir: output directory (string)
+        Batch TTS processing
 
         Returns:
-        - dictionary of {text: audio_file_path} (dict)
+        - dict of text => generated file path
         """
-        try:
-            results = {}
-            
-            # Ensure the output directory exists
-            if not os.path.exists(output_dir):
-                os.makedirs(output_dir)
-            
-            for i, text in enumerate(text_list):
-                output_file = os.path.join(output_dir, f"audio_{i+1}.wav")
-                audio_path = self.text_to_speech_file(text, output_file)
-                results[text] = audio_path
-                
-            return results
-            
-        except Exception as e:
-            print(f"TTS batch processing error: {e}")
-            return {}
-    
-    def set_voice_parameters(self, voice_model: str = None, language: str = None, 
-                           pitch: float = None, volume: float = None) -> bool:
-        """
-        Set voice parameters
+        os.makedirs(output_dir, exist_ok=True)
+        result = {}
+        for i, text in enumerate(text_list):
+            filename = os.path.join(output_dir, f"output_{i+1}.mp3")
+            path = self.text_to_speech_file(text, filename)
+            result[text] = path
+        return result
 
-        Args:
-        - voice_model: voice model name (string, optional)
-        - language: language setting (string, optional)
-        - pitch: pitch adjustment (float, optional)
-        - volume: volume adjustment (float, optional)
-
-        Returns:
-        - success status (bool: True/False)
+    def set_voice_parameters(self, voice_model: Optional[str] = None, voice: Optional[str] = None):
         """
-        try:
-            if voice_model:
-                self.voice_model = voice_model
-            if language:
-                self.language = language
-            # TODO: Implement other parameter settings
-            
-            return True
-            
-        except Exception as e:
-            print(f"TTS parameter setting error: {e}")
-            return False
+        Update voice model or speaker
+        """
+        if voice_model:
+            self.voice_model = voice_model
+        if voice:
+            self.voice = voice
 
 
 def demo():
-    """
-    TTS module demonstration
-    """
-    # Initialize the TTS module
     tts = TTSModule()
-    
-    # Example text
-    test_text = "안녕하세요, 음성 합성 테스트입니다."
-    
-    # Example: generate audio file
-    # audio_file = tts.text_to_speech_file(test_text, "test_output.wav")
-    # print(f"Audio file created: {audio_file}")
-    
-    print("TTS module framework initialized")
-    print("Awaiting concrete implementation...")
+    sample_text = "안녕하세요. OpenAI 음성 합성 테스트입니다."
+    file_path = tts.text_to_speech_file(sample_text, "test_ko.mp3")
+    print("Audio saved to:", file_path)
 
 
 if __name__ == "__main__":

@@ -104,15 +104,15 @@ class VoicePipeline:
             print(f"Response: {response_text}")
             
             # # Step 3: TTS - text to speech
-            # print("3. Synthesizing speech...")
-            # output_audio = self.tts.text_to_speech_file(response_text, output_audio_path)
-            # if not output_audio:
-            #     print("Speech synthesis failed")
-            #     return result
+            print("3. Synthesizing speech...")
+            output_audio = self.tts.text_to_speech_file(response_text, output_audio_path)
+            if not output_audio:
+                print("Speech synthesis failed")
+                return result
                 
-            # result["output_audio"] = output_audio
-            # result["success"] = True
-            # print(f"Processing complete! Output audio: {output_audio}")
+            result["output_audio"] = output_audio
+            result["success"] = True
+            print(f"Processing complete! Output audio: {output_audio}")
             
             # return result
             # ==========================

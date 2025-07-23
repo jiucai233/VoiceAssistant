@@ -1,7 +1,6 @@
 import os
 from typing import List
 from dotenv import load_dotenv
-
 from langchain_community.vectorstores import FAISS
 # from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.embeddings import HuggingFaceEmbeddings
@@ -13,7 +12,7 @@ from langgraph.graph import MessagesState, StateGraph
 from langgraph.graph import END
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain_core.tools import tool
-
+from langchain.docstore.document import Document
 
 class LLMRAGModule:
     def __init__(self, model_name: str = "gpt-4o-mini", vector_db_path: str = "./index/faiss_ko_sbert"):
@@ -103,8 +102,6 @@ class LLMRAGModule:
         return graph_builder.compile(checkpointer=self.memory)
 
     def add_documents(self, documents: List[str]) -> bool:
-        from langchain_community.vectorstores import FAISS
-        from langchain.docstore.document import Document
 
         try:
             docs = [Document(page_content=content) for content in documents]
