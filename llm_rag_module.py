@@ -134,7 +134,15 @@ class LLMRAGModule:
     def chat(self, user_input: str, session_id: str = "default-thread") -> str:
         try:
             for step in self.graph.stream(
-                {"messages": [{"role": "user", "content": user_input}]},
+                {
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": "You are on a phone call. Respond in natural spoken Korean. Be brief and clear. Do not make mistakes."
+                        },
+                        {"role": "user", "content": user_input}
+                    ]
+                },
                 config={"configurable": {"thread_id": session_id}},
                 stream_mode="values",
             ):
@@ -142,5 +150,6 @@ class LLMRAGModule:
             return last.content
         except Exception as e:
             print(f"[Chat error] {e}")
-            return "Error occurred during chat."
+            return "Error occurred during chat"
+
 
